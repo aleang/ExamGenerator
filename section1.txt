@@ -1,0 +1,141 @@
+General Java MCQs
+25
+1:4:Which of the following will evaluate to #{true}#?
+#{l3 > 8 || false}#
+#{l6 == 4 - 2}#
+#{l3.0 / 3.0 != 1.0}#
+#{true && (false == true)}#
+2:5:Which of these variable names are valid?
+None of the above
+12dec
+while
+System
+case
+3:4:According to the Java naming conventions, what do the following identifiers refer to? #[phouse, door, window, stair]#
+Variables 
+Classes
+Constants
+Methods
+4:4:According to Java naming conventions, what does the code #{length()}# refer to?
+a variable
+a class
+a method
+a value
+5:4:Where would you find the #{break}# keyword used?
+All of the above
+For loops
+Switch statements
+While loops
+6:5:Given a String value "#{We will rock you}#", at what index is the word "#{will}#" located?
+3
+0
+4
+2
+6
+7:5:What will be the output?#[System.out.println(7/3);]#
+2
+2.333 (recurring)
+2.0
+3.5
+2.5
+8:4:How many variables are required for this #{printf}# statement? #[System.out.printf("It's %%s today with %d and %d \n", ... );]#
+2
+3
+1
+None
+9:5:What operator can be used to shorten this code? #[int value = value + 1;]#
+both += and ++
++=
+++
+^
+*
+10:4:What is the output? #[int hour = 5; #BSystem.out.println("The + hour + is" + 8);]#
+The + hour + is8
+The 5 is 8
+The + hour + is 8
+The + 5 + is 8
+11:5:What value is stored in #{search}#? #[String name = "James Clair";#Bint search = name.indexOf("air");]#
+8
+7
+4
+6
+None of the above
+12:4:What value is stored in #{search}#? #[String name = "James Clair"; #Bchar search = name.charAt(4);]#
+'s'
+'e'
+' '
+'C'
+13:5:Which of the following is a Boolean expression?
+All of the above
+#{! (4 > 4)}#
+#{'h' < 'i'}#
+#{age1 != age2}# (both age1 and age2 are integer variables)
+#{myName.length() > 5}# (myName is a String variable)
+14:4:What will be stored in the variable line? #[String line = 5 / 25 + "O" + (13 - 6);]#
+#{0O7}#
+#{07}#
+#{O7}#
+None of the above
+14:4:What is the value of the following expression? #{13 % 4}#
+1
+0
+3
+2
+15:4:What is the value of the following expression? #{15 % 6 * (3 / 4.0)}#
+0.75
+2.0
+0
+None of the above
+16:5:What is the value of the following expression? #{2.0 * ( 4 + 2 / 5 )}#
+8.0
+2.4
+8.4
+2.0
+None of the above
+17:4:What is the value of the following Boolean expression? #{( (5 > 3) && (5 > 8) )}#
+false
+true
+true and false
+false and true
+18:5:What will be printed out after executing the following statements?#[String words = "Hello World!";#BSystem.out.println( words.charAt(2) );]#
+e
+World
+-1
+h
+false
+19:4:What is the output?#[String city = "New Plymouth";#BSystem.out.println( city.substring(0, 4) );]#
+New 
+Ne
+New P
+None of the above
+20:4:What is the output when this #{for}# loop is executed?#[for (double num = 2; num < 3; num += 0.2) {#B#TSystem.out.printf("%1.1f ", num);#B}]#
+2.0 2.2 2.4 2.6 2.8
+2.0 2.2 2.4 2.6 2.8 3.0
+2.0
+2.0 3.0
+21:4:What value will #{amount}# have after the #{for}# loop?#[int amount = 1;#Bfor (int count = 1; count < 10; count *= 2) {#B#Tamount += count;#B}]#
+16
+26
+46
+32
+22:4:The technique "desk checking" is good for checking what part of the code?
+#{for}# and #{while}# loops
+#{if}# statements
+#{switch}# statements
+#{for}# loops only
+23:5:Which of the following is an incorrect way to make a comment?
+#{/******* My comment here *********}#
+#[/* My comment goes here#B#Tand here too#B*/]#
+#{// end of Main method}#
+#{int age2; // this variable is for 2nd age value}#
+All of the above
+24:3:What is the first thing needed to be done in order to use a #{Scanner}# object?
+import the Scanner class
+create a variable called #{keyboard}#
+use the #{new}# word to create a Scanner
+25:5:Which #{printf} pattern should be used to output two String separated by a comma?
+#{%s,%s}#
+#{%%,ss}#
+#{%S,%S}#
+#{%s,%s,}#
+#{%ss}#
