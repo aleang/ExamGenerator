@@ -6,7 +6,7 @@
  * @see bit.ly/pixport
  */
 
-package testgenerator;
+package examgenerator.aleang;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;

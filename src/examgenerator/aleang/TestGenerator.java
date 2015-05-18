@@ -7,7 +7,7 @@
  * @see bit.ly/pixport
  */
 
-package testgenerator;
+package examgenerator.aleang;
 import static java.lang.System.out;
 import java.io.File;
 import java.io.FileNotFoundException;
