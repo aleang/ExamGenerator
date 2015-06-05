@@ -1,59 +1,61 @@
-General Java MCQs
+General Multi-Choice Questions<br/><h4>Please circle only one option</h4>
 25
 1:4:Which of the following will evaluate to #{true}#?
-#{l3 > 8 || false}#
-#{l6 == 4 - 2}#
-#{l3.0 / 3.0 != 1.0}#
-#{true && (false == true)}#
-2:5:Which of these variable names are valid?
+#{13 > 8 || false}#
+#{16 == 4 - 2}#
+#{13.0 / 3.0 != 1.0}#
+#{true && (false || true)}#
+2:5:Which of the following variable names are valid?
 None of the above
 12dec
 while
 System
 case
-3:4:According to the Java naming conventions, what do the following identifiers refer to? #[phouse, door, window, stair]#
-Variables 
-Classes
-Constants
-Methods
+3:5:What is the correct way to assign 3.1415 to a #{double}# variable called #{aNumber}#?
+None of the above
+double aNumber = 3.1415
+aNumber := 3.1415;
+double = 3.1415;
+double aNumber = 3.1315;
 4:4:According to Java naming conventions, what does the code #{length()}# refer to?
 a variable
 a class
 a method
 a value
-5:4:Where would you find the #{break}# keyword used?
-All of the above
-For loops
-Switch statements
-While loops
-6:5:Given a String value "#{We will rock you}#", at what index is the word "#{will}#" located?
+5:4:What does the #{break}# command do?
+Terminate the current loop
+Skip the current iteration in a loop
+Display the blue screen to the user
+Skip the current line of code
+6:5:Given a String value #{"We will rock you"}#, at what index is the string #{"will"}# located?
 3
 0
 4
 2
 6
-7:5:What will be the output?#[System.out.println(7/3);]#
-2
-2.333 (recurring)
-2.0
-3.5
-2.5
+7:5:Given two int variables. What is the correct way to calculate their division so that any values after the decimal point are kept?#[int number1 = 7;#Bint number2 = 3;]#
+#{number1 * 1.0 / number2}#
+#{number1 / number2}#
+#{7 / 3}#
+#{number1 * 1 / number2}#
+None of the above
 8:4:How many variables are required for this #{printf}# statement? #[System.out.printf("It's %%s today with %d and %d \n", ... );]#
 2
 3
 1
 None
-9:5:What operator can be used to shorten this code? #[int value = value + 1;]#
+9:6:Which operator(s) can be used to shorten this code? #[int value = value + 1;]#
 both += and ++
 +=
 ++
 ^
+-=
 *
-10:4:What is the output? #[int hour = 5; #BSystem.out.println("The + hour + is" + 8);]#
-The + hour + is8
-The 5 is 8
-The + hour + is 8
-The + 5 + is 8
+10:4:Which of the following is the incorrect way to check for equality?
+#{myName == theirName}# (both myName and theirName are string)
+#{shirtSize == jacketSize}# (both variables are doubles)
+#{myWeight == shoeSize}# (myWeight is a double, shoeSize is an int)
+#{gender == 'M'}# (gender is a char)
 11:5:What value is stored in #{search}#? #[String name = "James Clair";#Bint search = name.indexOf("air");]#
 8
 7
@@ -61,43 +63,42 @@ The + 5 + is 8
 6
 None of the above
 12:4:What value is stored in #{search}#? #[String name = "James Clair"; #Bchar search = name.charAt(4);]#
-'s'
-'e'
-' '
-'C'
+#{'s'}#
+#{'e'}#
+#{' '}# (a space character)
+#{'C'}#
 13:5:Which of the following is a Boolean expression?
 All of the above
 #{! (4 > 4)}#
 #{'h' < 'i'}#
 #{age1 != age2}# (both age1 and age2 are integer variables)
-#{myName.length() > 5}# (myName is a String variable)
-14:4:What will be stored in the variable line? #[String line = 5 / 25 + "O" + (13 - 6);]#
+#{myName.length() > 5}# (myName is a string variable)
+14:4:What will be stored in the variable #{myString}#? #[String myString = 5 / 10 + "O" + (13 - 6);]#
 #{0O7}#
 #{07}#
-#{O7}#
-None of the above
-14:4:What is the value of the following expression? #{13 % 4}#
+#{0.5O7}#
+#{0.507}#
+14:4:Percent (%) is the modulus operator. What is the result of #{13 % 4}#?
 1
 0
 3
 2
-15:4:What is the value of the following expression? #{15 % 6 * (3 / 4.0)}#
-0.75
-2.0
-0
-None of the above
+15:4:What is the method used to get the character at a specified index from a string?
+charAt()
+indexOf()
+getCharacter()
+substring()
 16:5:What is the value of the following expression? #{2.0 * ( 4 + 2 / 5 )}#
 8.0
 2.4
 8.4
 2.0
 None of the above
-17:4:What is the value of the following Boolean expression? #{( (5 > 3) && (5 > 8) )}#
+17:3:What is the value of the following Boolean expression? #[(5 > 3) && (5 > 8)]#
 false
 true
-true and false
-false and true
-18:5:What will be printed out after executing the following statements?#[String words = "Hello World!";#BSystem.out.println( words.charAt(2) );]#
+Can't be determined
+18:5:What is the output?#[String words = "Hello World!";#BSystem.out.println( words.charAt(2) );]#
 e
 World
 -1
@@ -118,7 +119,7 @@ None of the above
 26
 46
 32
-22:4:The technique "desk checking" is good for checking what part of the code?
+22:4:The technique "desk checking" is used for which part of the code?
 #{for}# and #{while}# loops
 #{if}# statements
 #{switch}# statements
@@ -129,10 +130,10 @@ None of the above
 #{// end of Main method}#
 #{int age2; // this variable is for 2nd age value}#
 All of the above
-24:3:What is the first thing needed to be done in order to use a #{Scanner}# object?
+24:3:What is the first thing needed to be done in order to create a #{Scanner}# object?
 import the Scanner class
-create a variable called #{keyboard}#
-use the #{new}# word to create a Scanner
+create a Scanner variable called #{keyboard}#
+use the #{new}# keyword to create a Scanner
 25:5:Which #{printf} pattern should be used to output two String separated by a comma?
 #{%s,%s}#
 #{%%,ss}#

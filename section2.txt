@@ -1,11 +1,11 @@
 Identifying Errors
 5
-1:4:Which type of error will this code produce? #[System.out.println("Hello" "John");]#
+1:4:Which type of error will this code produce? #[System.out.println("Hello","John");]#
 Compile error
 Runtime error
 Logical error
 None of the above
-2:4:Which type of error will this code produce? #[int[] numbers = new int[5];#Bnumbers[5] lastValue = 101;]#
+2:4:Which type of error will this code produce? #[String banner = "Happy Birthday";#Bchar secret = banner.charAt(21);]#
 Runtime error
 Compile error
 Logical error
@@ -20,7 +20,7 @@ Logical error
 Runtime error
 Compile error
 None of the above
-5:4:Which type of error will this code produce? #[String becretCode = "pswrd82";#B int index = secret.charAt(6);#B System.out.println(secretCode.indexOf(index));]#
+5:4:Which type of error will this code produce? #[int cookies = 25;#Bdouble price = 0.80;#Bint totalCost = price * cookies;]#
 Compile error
 Runtime error
 Logical error

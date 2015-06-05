@@ -169,6 +169,10 @@ public class TestGenerator extends JFrame {
     public void setOutputDirectory(File currentDirectory) { outputDirectory = currentDirectory; }
     public void setProgressFeedback(JProgressBar bar) {jpBar = bar;}
     
+    // Getters
+    public File getOutputDirectory() {
+    	return this.outputDirectory;
+    }
     // Printer methods
     public void print(String html){
         printer.println(html);

@@ -14,7 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
- *
+ * Netbean version of ExamGenerator
+ * @version 1.0
  * @author Pheng
  */
 public class Application extends javax.swing.JFrame {
