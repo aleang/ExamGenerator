@@ -8,18 +8,15 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.JTextArea;
-
 public class DropFileListener implements DropTargetListener {
 	TestGenerator t;
-	JTextArea txaQuestionFiles;
 	
-    public DropFileListener(TestGenerator t, JTextArea txaQuestionFiles) {
+    public DropFileListener(TestGenerator t) {
     	this.t = t;
-    	this.txaQuestionFiles = txaQuestionFiles;
 	}
     
 
@@ -42,10 +39,8 @@ public class DropFileListener implements DropTargetListener {
                 	
                     // Get all of the dropped files
                     List files = (List) transferable.getTransferData(flavor);
-                    File[] filesArray = new File[files.size()];
+                    ArrayList<File> filesArray = new ArrayList<File>();
                     File file;
-                    int arrayCounter = 0;
-                    String selectedFilesString = "";
                     for (int i = 0; i < files.size(); i++) {
                     	file = (File) files.get(i);
                         
@@ -56,18 +51,13 @@ public class DropFileListener implements DropTargetListener {
                         if (extension.equals("txt") || extension.equals("TXT")){
                         	//System.out.println("File path is '" + file.getPath() + "'.");
                         	//flipperPanel.loadDataFromFile(file);
-                        	filesArray[arrayCounter++] = file;
-                        	selectedFilesString += String.format("%s%n", file.getName());
+                        	filesArray.add(file);
                         }
                     	
                     }
-                    if (arrayCounter > 0) {
-                    	File[] newArray = Arrays.copyOf(filesArray, arrayCounter);
-                    	
-                    	t.setChosenExamFiles(newArray);
-			            t.setOutputDirectory(newArray[0].getParentFile());
-			            txaQuestionFiles.setText(selectedFilesString);
-                    }
+                    
+                    t.addExamFiles(filesArray);
+			         
                     break flavoursLoop;
                 }
 
