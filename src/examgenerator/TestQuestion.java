@@ -19,15 +19,16 @@ public class TestQuestion {
     final String NOA = "None of the above", AOA = "All of the above";
     String question, correctOption;
     ArrayList<String> options;
-    int qNumber, numOfOptions;
+    int questionNumber, numOfOptions;
     boolean keepAnswerAtBotton, keepFakeAtBottom; // only if NOA or AOA exist
     boolean NOAorAOAisWrong; // true for NOA, false for AOA
     HashMap<String, String> htmlConversion;
+	private static TestPrinter printer;
     
-    public TestQuestion(String questionLine, Scanner scan) {
+    public TestQuestion(String questionLine, Scanner scan, TestPrinter printer) {
         htmlConversion = getHtmlCodes();
         String[] bits = questionLine.split(":");
-        qNumber = Integer.parseInt(bits[0]);
+        questionNumber = Integer.parseInt(bits[0]);
         numOfOptions = Integer.parseInt(bits[1]);
         question = convertToHtml(bits[2]);
         options = new ArrayList<String>();
@@ -51,14 +52,15 @@ public class TestQuestion {
         
         shuffleOptions();
         
+        this.printer = printer;
     }
 
-    void print(TestGenerator tg) {
+    void writeToFile() {
         int currentNumber = TestGenerator.staticQuestionNumber++;
-        tg.print("<div>");
-        tg.print("span", "questionNumber", "Question " + currentNumber);
-        tg.print("span", "questionTitle", question);
-        tg.print("<table>");
+        printer.out("<div>");
+        printer.out("span", "questionNumber", "Question " + currentNumber);
+        printer.out("span", "questionTitle", question);
+        printer.out("<table>");
         
         char optCode = 'A';
         for (String opt:  options) {
@@ -66,13 +68,13 @@ public class TestQuestion {
                 TestGenerator.answerSheet.add(optCode);
             }
             
-            tg.print("<tr>");
-            tg.print("td", optCode+"");
-            tg.print("td", opt);
-            tg.print("</tr>");
+            printer.out("<tr>");
+            printer.out("td", optCode+"");
+            printer.out("td", opt);
+            printer.out("</tr>");
             optCode++;
         }
-        tg.print("</table></div>");
+        printer.out("</table></div>");
         
         out.printf("%d. %s%n", currentNumber, question);
         optCode = 'A';
@@ -93,7 +95,8 @@ public class TestQuestion {
         /*
          * #[ means begin code <pre>
          * #{ means begin inline code <pre class="l">
-         * ]# or }# means end of code </pre>
+         * #< means insert an image <img src...
+         * ]#, }# or ># means end of code </pre>
          * #T means tab "    " (4 spaces)
          * #B means break <br>
          */
@@ -102,6 +105,8 @@ public class TestQuestion {
         codes.put("#{", "<pre class='l'>");
         codes.put("]#", "</pre>");
         codes.put("}#", "</pre>");
+        codes.put("#<", "<span class='image'><img src=\"");
+        codes.put(">#", "\" /></span>");
         codes.put("#T", "    ");
         codes.put("#B", "<br />");
         codes.put("#N", "<br />    ");
@@ -110,16 +115,7 @@ public class TestQuestion {
     private void shuffleOptions() {
         if (keepAnswerAtBotton) options.remove(0);
         
-        if (Math.random() < 0.5) Collections.sort(options);
-        else Collections.sort(options, Collections.reverseOrder());
-        
-        String swapped;
-        Random random = new Random();
-        
-        swapped = options.remove(random.nextInt(options.size()));
-        options.add(0, swapped);
-        swapped = options.remove(random.nextInt(options.size()));
-        options.add(0, swapped);
+        Collections.shuffle(options);
         
         if (keepFakeAtBottom) options.add(NOAorAOAisWrong ? NOA : AOA);
         else if (keepAnswerAtBotton) options.add(correctOption);

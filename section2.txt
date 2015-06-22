@@ -1,4 +1,4 @@
-Identifying Errors
+<h1>Identifying Errors<img src="img/JavaLogo2.jpg" /></h1>
 5
 1:4:Which type of error will this code produce? #[System.out.println("Hello","John");]#
 Compile error
@@ -20,7 +20,7 @@ Logical error
 Runtime error
 Compile error
 None of the above
-5:4:Which type of error will this code produce? #[int cookies = 25;#Bdouble price = 0.80;#Bint totalCost = price * cookies;]#
+5:4:Which type of error will this code produce? #[int cookies = 25;#Bdouble price = 0.80;#Bint totalCost = price * cookies;]##<img/JavaLogo.jpg>#
 Compile error
 Runtime error
 Logical error

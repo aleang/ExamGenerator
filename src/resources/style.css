@@ -8,6 +8,11 @@ body {
 }
 h1 {
 	page-break-before: always;
+	text-align: center;
+}
+img {
+	display: block;
+	margin: auto;
 }
 h1:first-of-type {
 	page-break-before: avoid;
@@ -39,4 +44,13 @@ pre.l {
 	display: inline;
 	padding: 3px;
 	margin: 0;
+}
+.image {
+	width: 100%;
+	display: block;
+	text-align: center;
+}
+img {
+	min-width: 50px;
+	max-width: 500px;
 }

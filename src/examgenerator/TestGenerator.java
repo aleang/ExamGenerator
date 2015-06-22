@@ -16,17 +16,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Scanner;
 
 import javax.swing.AbstractListModel;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
 import javax.swing.JTextField;
-import javax.swing.ListModel;
+import javax.swing.JToggleButton;
 
 public class TestGenerator extends JFrame {
     public static ArrayList<Character> answerSheet = new ArrayList<Character>();
@@ -36,159 +33,146 @@ public class TestGenerator extends JFrame {
     int versionNumber;
     boolean randomiseQuestionOrder;
     TestSection[] sections;
-    PrintWriter printer;
+    private static TestPrinter printer;
     ArrayList<File> examFiles;
-    File outputFolder;
-    private JProgressBar jpBar;
+    private File outputFolder;
 	private JList<String> lstExamFiles;
 	private JTextField txfOutputFolder;
-            
-    public TestGenerator() {
-        examName = "Test";
+	final private char EXAM_SCRIPT = 'E', ANSWERS = 'A', STYLES = 'S';
+	private JToggleButton bttnRandomVersionNumber; 
+	
+	public TestGenerator() {
+        examName = "ExamName";
         versionNumber = 1;
         examFiles = new ArrayList<File>();
     }
-
     
-    public void generateTest() {
-
-        // Step 1: Set up printer to write files to
-        printer = setUpPrinter();
+    public void generateTest() throws Exception {
+        // Set up printer to write files to
+        printer = new TestPrinter(outputFolder, examName, versionNumber, EXAM_SCRIPT);
         
-        // Step 2: Set up HTML document
-        prepareHTMLFile(printer);
-        
-        // Step 3: Create sections with questions
-        createQuestionsAndRandomise();
+        // Create sections from question files
+        readQuestionFiles();
 
-        // Step 4: Print out sections to HTML document
+        // Print out sections to HTML document
         staticQuestionNumber = 1;
         for (TestSection sec: sections){
-            sec.print(this);
+            sec.writeToFile();
         }
         printer.flush();
-        printer.close();
         
-        // Step 5: Print out answers!
-        printAnswer();
+        printAnswersAndStyles();
     }
     
-    private void createQuestionsAndRandomise() {
+    private void readQuestionFiles() throws Exception {
         sections = new TestSection[examFiles.size()];
         answerSheet.clear();
         try {
             for (int i = 0; i < examFiles.size(); i++) {
-                sections[i] = new TestSection(examFiles.get(i), randomiseQuestionOrder);
-                jpBar.setValue((int)(i * 50.0 /examFiles.size()));
+                sections[i] = new TestSection(examFiles.get(i), randomiseQuestionOrder, printer);
             }
         } catch(Exception e) {
-            e.printStackTrace();
+            throw e;
         }
         
     }
     
-    private void printAnswer() {
-        String outputFile = String.format("%s/%s-version-%d-solution.txt", outputFolder.getAbsolutePath(), examName, versionNumber);
-        PrintWriter printedFile;
+    private void printAnswersAndStyles() throws Exception {
+    	
         try {
-            printedFile = new PrintWriter(new File(outputFile));
-            printedFile.println(String.format("%s-version-%d-solutions", examName, versionNumber));
-            int numberOfQs = answerSheet.size();
-            
+        	TestPrinter printer = new TestPrinter(outputFolder, examName, versionNumber, ANSWERS);
+        	
             for (int i = 1; ! answerSheet.isEmpty(); i++){
                 char optCode = answerSheet.remove(0);
                 int spaces = (optCode - 'A')*4 + 1;
-                printedFile.printf("%3d: %"+spaces+"s\n", i, optCode+"");
-                if (i % 5 == 0) printedFile.println();
-                jpBar.setValue(50+(int)(i * 50.0 /numberOfQs));
+                printer.outf("%3d: %"+spaces+"s\n", i, optCode+"");
+                if (i % 5 == 0) printer.outln();
             }
-            jpBar.setValue(100);
-            printedFile.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            printer.close();
+            printer.close();
+        } catch (Exception e) {
+            throw new Exception("Error printing out solution file");
         }
         
-        outputFile = String.format("%s/style.css", outputFolder.getAbsolutePath());
         try {
-            printedFile = new PrintWriter(new File(outputFile));
+            TestPrinter printer = new TestPrinter(outputFolder, examName, versionNumber, STYLES);
             
             Scanner cssFileScanner = new Scanner(getClass().getResourceAsStream("/resources/style.css"));
             while (cssFileScanner.hasNextLine()) {
-            	printedFile.println(cssFileScanner.nextLine());
+            	printer.outln(cssFileScanner.nextLine());
             }
-            printedFile.flush();
-            printedFile.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            printer.flush();
+            printer.close();
+        } catch (Exception e) {
+            throw new Exception("Error printint out CSS file");
         }
     }
-    
-    /**
-     * setUpPrinter() will create a print writer that writes
-     * to a file that has a name based on exam name and version number
-     * @return
-     */
-    private PrintWriter setUpPrinter() {
-        String outputFile = String.format("%s/%s-version-%d.html", outputFolder.getAbsolutePath(), examName, versionNumber);
-        try {
-            FileWriter fw = new FileWriter(outputFile, false);
-            return new PrintWriter(fw);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        
+    // Setters *************************************************
+    public void setVersionNumber(int i) { 
+    	versionNumber = i; 
     }
-    
-    /**
-     * prepareHTMLFile() set up the HTML document with HTML5
-     * @param outputFile PrintWriter object to print with
-     */
-    private void prepareHTMLFile(PrintWriter pw) {
-        print("<!DOCTYPE html><html><head>");
-        print("<link rel='stylesheet' href='style.css' type='text/css' />");
-        print("</head><body>");
+    public void setExamName(String str) { 
+    	examName = str; 
     }
-    
-    // Setters
-    public void setTestVersionNumber(int i) { versionNumber = i; }
-    public void setTestName(String str) { examName = str; }
-    public void setRandomiseQuestionOrder(boolean yes) {randomiseQuestionOrder = yes; }
-	public void setOutputDirectory(File currentDirectory) { outputFolder = currentDirectory; }
-    
-    
-    // Getters
-    public File getOutputDirectory() { return this.outputFolder; }
-    
-    
-    // Printer methods
-    public void print(String html){
-        printer.println(html);
+    public void setRandomiseQuestionOrder(boolean b) {
+    	randomiseQuestionOrder = b; 
     }
-    public void print(String htmlTag, String content) {
-        printer.printf("<%s>%s</%s>%n", htmlTag, content, htmlTag);
-    }
-    public void print(String htmlTag, String tagClass, String content) {
-        printer.printf("<%s class='%s'>%s</%s>", htmlTag, tagClass, content, htmlTag);
-    }
-
-	public void setComponents(JProgressBar j, JList l, JTextField t) {
-		this.jpBar = j;
+	public void setOutputDirectory(File dir) { 
+		outputFolder = dir; 
+	}
+	public void setComponents(JList l, JTextField t, JToggleButton b) {
 		this.lstExamFiles = l;
 		this.txfOutputFolder = t;
+		this.bttnRandomVersionNumber = b;
 	}
+    
+    // Getters ***************************************************
+	public String getExamName() { return examName; }
+	public int getVersionNumber() { return versionNumber; }
+    public File getOutputDirectory() { return this.outputFolder; }
+	public File getFileFromArrayList(String filename) throws Exception {
+		if (filename == null) throw new NullPointerException("invalid file");
+		for (File f: examFiles) {
+			if (f.getName().equals(filename)) return f;
+		}
+		return null;
+	}
+	public File getGeneratedExamScript() {
+		return new File(printer.outputFileName);
+	} 
+    
 
-	// Exam file management
+    public int getFileIndex(File file) {
+    	for (int i = 0; i < examFiles.size(); i++) {
+    		if (examFiles.get(i) == file) return i;
+    	}
+    	return -1;
+    }
+	
+	// Exam file management **************************************
     public void addExamFiles(ArrayList<File> filesArray) { 
+    	File lastFile = null;
     	for (File f: filesArray) {
     		if (! examFiles.contains(f)){
     			examFiles.add(f);
+    			lastFile = f;
     		}
     	}
-    	updateExamFilesDisplay();
+    	updateExamFilesDisplay(lastFile.getName());
+    	if (outputFolder == null) {
+    		outputFolder = lastFile.getParentFile();
+    		txfOutputFolder.setText(outputFolder.getAbsolutePath());
+    	}
     }
-    private void updateExamFilesDisplay() {
+    public void addExamFiles(File[] files) {
+		ArrayList<File> a = new ArrayList<File>();
+		for (File f: files) {
+			a.add(f);
+		}
+		addExamFiles(a);
+	}
+    private void updateExamFilesDisplay(String lastFile) {
     	lstExamFiles.setModel(new AbstractListModel<String>() {
 			String[] values = convert(examFiles);
 			
@@ -206,63 +190,68 @@ public class TestGenerator extends JFrame {
 				return arr;
 			}
 		});
+    	if (lastFile != null) {
+    		lstExamFiles.setSelectedValue(lastFile, true);
+    		
+    	}
 	}
 	public void examFileListChange(String action) {
-		File file = getFileFromArrayList(lstExamFiles.getSelectedValue());
-		switch (action) {
-			case "move down" : {
-				int currIndex = Collections.binarySearch(examFiles, file);
-				if (currIndex < examFiles.size()-1) {
-					examFiles.remove(file);
-					examFiles.add(currIndex+1, file);
-					lstExamFiles.setSelectedIndex(currIndex+1);
-				}
-				break;
+		String selFile = null;
+		
+		if (action.equals("clear list")){
+			if (JOptionPane.showConfirmDialog(null, 
+					"Press OK to remove all files. This cannot be undone.", 
+					"Remove?", 
+					JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+				examFiles.clear();
 			}
-			case "move up" : {
-				int currIndex = Collections.binarySearch(examFiles, file);
-				if (currIndex > 0) {
-					examFiles.remove(file);
-					examFiles.add(currIndex-1, file);
-					lstExamFiles.setSelectedIndex(currIndex-1);
-				}
-				break;
+		} else  {
+			File file = null;
+			try {
+				file = getFileFromArrayList(lstExamFiles.getSelectedValue());
+			} catch (NullPointerException e) { 
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Please select a file", "No file selected!", JOptionPane.ERROR_MESSAGE);
+				return;
 			}
-			case "remove file" : {
-				if (JOptionPane.showConfirmDialog(null, 
-						"Press OK to remove \"" + file.getName() + "\". This cannot be undone.", 
-						"Remove?", 
-						JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE) == JOptionPane.OK_OPTION) {
-					examFiles.remove(file);
+			
+			int currIndex = getFileIndex(file);
+			selFile = file.getName();
+			switch(action) {
+				case "move down" : {
+					if (currIndex < examFiles.size()-1) {
+						examFiles.remove(file);
+						examFiles.add(currIndex+1, file);
+					}
+					break;
 				}
-				break;
-			}
-			case "set output" : {
-				this.outputFolder = file.getParentFile();
-				
-				txfOutputFolder.setText(outputFolder.getAbsolutePath());
-				break;
-			}
-			case "clear list" : {
-				if (JOptionPane.showConfirmDialog(null, 
-						"Press OK to remove all. This cannot be undone.", 
-						"Remove?", 
-						JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
-					examFiles.clear();
+				case "move up" : {
+					if (currIndex > 0) {
+						examFiles.remove(file);
+						examFiles.add(currIndex-1, file);
+						
+					}
+					break;
 				}
-				break;
+				case "remove file" : {
+					if (JOptionPane.showConfirmDialog(null, 
+							"Press OK to remove \"" + file.getName() + "\".", 
+							"Remove?", 
+							JOptionPane.OK_CANCEL_OPTION,
+							JOptionPane.QUESTION_MESSAGE) == JOptionPane.OK_OPTION) {
+						examFiles.remove(file);
+					}
+					break;
+				}
+				case "set output" : {
+					this.outputFolder = file.getParentFile();
+					txfOutputFolder.setText(outputFolder.getAbsolutePath());
+					break;
+				}
 			}
 		}
-		updateExamFilesDisplay();
+		updateExamFilesDisplay(selFile);
 	}
 
-	public File getFileFromArrayList(String filename) {
-		for (File f: examFiles) {
-			if (f.getName().equals(filename)) return f;
-		}
-		return null;
-	}
-    
 }
