@@ -204,7 +204,7 @@ public class Application {
 		mntmHelpDocumentation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
 		mntmHelpDocumentation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String[] sourceFiles = {"help.html"};
+			/*	String[] sourceFiles = {"help.html"};
 				File helpFile = null;
 				Desktop desktop = Desktop.getDesktop();
 				for (String filename: sourceFiles) {
@@ -248,17 +248,17 @@ public class Application {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-				/*
+				*/
 				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
 			    if (desktop != null && desktop.isDesktopSupported()) {
 			        try {
-			        	desktop.open(new File("resources/help.html"));
-			            desktop.browse(getClass().getResource("/resources/help.html").toURI());
+			        	//desktop.open(new File("resources/help.html"));
+			            desktop.browse(new URI("http://aleang.github.io/ExamGenerator/"));
 			        } catch (Exception e) { 
 			        	JOptionPane.showMessageDialog(null, e.getMessage()); 
 			       	}
 			    }
-				*/
+				
 			
 			}
 		});
