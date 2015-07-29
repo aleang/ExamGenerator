@@ -45,10 +45,14 @@ public class TestGenerator extends JFrame {
         examName = "ExamName";
         versionNumber = 1;
         examFiles = new ArrayList<File>();
+        randomiseQuestionOrder = true;
     }
     
     public void generateTest() throws Exception {
-        // Set up printer to write files to
+        // Validate fields
+    	isInputFieldValid();
+    	
+    	// Set up printer to write files to
         printer = new TestPrinter(outputFolder, examName, versionNumber, EXAM_SCRIPT);
         
         // Create sections from question files
@@ -64,7 +68,18 @@ public class TestGenerator extends JFrame {
         printAnswersAndStyles();
     }
     
-    private void readQuestionFiles() throws Exception {
+    public boolean isInputFieldValid() throws Exception {
+    	String message = "";
+    	if (examName.length() < 0) message += "(Exam name invalid)";
+    	if (versionNumber < 1 || versionNumber > 100) message += "(Version Number out of allowed range)";
+    	if (examFiles.size() < 1) message += "(No question files given)";
+    	if (outputFolder == null) message += "(Output folder not set)";
+    	
+    	if (message.length() > 0) throw new Exception(message);
+    	else return true;
+	}
+
+	private void readQuestionFiles() throws Exception {
         sections = new TestSection[examFiles.size()];
         answerSheet.clear();
         try {
@@ -80,21 +95,25 @@ public class TestGenerator extends JFrame {
     private void printAnswersAndStyles() throws Exception {
     	
         try {
+        	// Try print out answer sheet
         	TestPrinter printer = new TestPrinter(outputFolder, examName, versionNumber, ANSWERS);
-        	
+        	printer.outln("<html><body><pre>");
             for (int i = 1; ! answerSheet.isEmpty(); i++){
                 char optCode = answerSheet.remove(0);
                 int spaces = (optCode - 'A')*4 + 1;
-                printer.outf("%3d: %"+spaces+"s\n", i, optCode+"");
+                String line = String.format("%3d: %"+spaces+"s", i, optCode+"");
+                printer.outln(line);
                 if (i % 5 == 0) printer.outln();
             }
-            printer.close();
+            printer.outln("</pre></body></html>");
+            printer.flush();
             printer.close();
         } catch (Exception e) {
             throw new Exception("Error printing out solution file");
         }
         
         try {
+        	// Try create copy of style.css file
             TestPrinter printer = new TestPrinter(outputFolder, examName, versionNumber, STYLES);
             
             Scanner cssFileScanner = new Scanner(getClass().getResourceAsStream("/resources/style.css"));
@@ -119,7 +138,7 @@ public class TestGenerator extends JFrame {
     	randomiseQuestionOrder = b; 
     }
 	public void setOutputDirectory(File dir) { 
-		outputFolder = dir; 
+		outputFolder = dir;
 	}
 	public void setComponents(JList l, JTextField t, JToggleButton b) {
 		this.lstExamFiles = l;
@@ -141,7 +160,9 @@ public class TestGenerator extends JFrame {
 	public File getGeneratedExamScript() {
 		return new File(printer.outputFileName);
 	} 
-    
+	public File getAnswerSheet() {
+		return new File(printer.outputFileName.replace("Exam Script", "Answers"));
+	}
 
     public int getFileIndex(File file) {
     	for (int i = 0; i < examFiles.size(); i++) {
@@ -192,8 +213,8 @@ public class TestGenerator extends JFrame {
 		});
     	if (lastFile != null) {
     		lstExamFiles.setSelectedValue(lastFile, true);
-    		
     	}
+    	
 	}
 	public void examFileListChange(String action) {
 		String selFile = null;

@@ -39,6 +39,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import java.awt.Color;
 
@@ -48,10 +49,13 @@ import javax.swing.KeyStroke;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+
+import javax.swing.JSeparator;
 
 /**
  * Exam Generator 2
- * @version 1.06.21
+ * @version 1.07.22
  * @author Pheng
  *
  */
@@ -75,6 +79,9 @@ public class Application {
 	private JButton btnRemoveFile;
 	private JButton btnMoveDown;
 	private JButton btnMoveUp;
+	private JButton btnGenerate;
+	private JButton btnOutputFolder;
+	private JMenuItem mntmOpenAnswerSheet;
 	/**
 	 * Launch the application.
 	 */
@@ -111,16 +118,16 @@ public class Application {
 		JMenuBar menuBar = new JMenuBar();
 		frmApplication.setJMenuBar(menuBar);
 		
-		JMenu mnGenerator = new JMenu("Exam");
-		mnGenerator.setMnemonic('e');
+		JMenu mnGenerator = new JMenu("Form");
+		mnGenerator.setMnemonic('f');
 		menuBar.add(mnGenerator);
 		
 		JMenuItem mntmClearFields = new JMenuItem("Clear Fields");
 		mntmClearFields.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK));
 		mntmClearFields.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				t.setExamName("");
-				txfExamName.setText("");
+				t.setExamName("ExamName");
+				txfExamName.setText("ExamName");
 				
 				t.setVersionNumber(1);
 				jslVersionNumber.setValue(1);
@@ -136,65 +143,39 @@ public class Application {
 		});
 		mnGenerator.add(mntmClearFields);
 		
-		JMenuItem mntmGenerate = new JMenuItem("Generate!");
-		mntmGenerate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK));
-		mntmGenerate.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent a) {
-				try {
-					if (bttnRandomVersionNumber.isSelected()) {
-						findRandomVersionNumber();
-					}
-		            t.generateTest();
-		            jpbProgress.setValue(100);
-		            //JOptionPane.showMessageDialog(null, "Exam Script generated successfully.\nPress Ctrl+O to open the file.\nPress Ctrl+Shift+O to open the output folder", "Success", JOptionPane.INFORMATION_MESSAGE);
-		        } catch (Exception e) {
-		            e.printStackTrace();
-		            JOptionPane.showMessageDialog(null, "An error occured while generating the exam script.\n"
-		                    + "Error Message: " 
-		                    + e.getMessage() + '\n'
-		                    + "Program has aborted.",
-		                    "Encountered an error", JOptionPane.ERROR_MESSAGE);
-		            
-		        }
-			}
-		});
-		mnGenerator.add(mntmGenerate);
-		
-		JMenu mnOutput = new JMenu("Output");
+		JMenu mnOutput = new JMenu("Open");
 		mnOutput.setMnemonic('o');
 		menuBar.add(mnOutput);
+		
+		mntmOpenFile = new JMenuItem("Open Exam File...");
+		mntmOpenFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		mntmOpenFile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				openFile(t.getGeneratedExamScript());
+						
+			}
+		});
+		mnOutput.add(mntmOpenFile);
+		
+		mntmOpenAnswerSheet = new JMenuItem("Open Answer Sheet...");
+		mntmOpenAnswerSheet.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK));
+		mntmOpenAnswerSheet.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				openFile(t.getAnswerSheet());
+			}
+			
+		});
+		mnOutput.add(mntmOpenAnswerSheet);
 		
 		mntmGoToFolder = new JMenuItem("Open Output Folder...");
 		mntmGoToFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
 		mntmGoToFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-			    if (desktop != null && desktop.isSupported(Desktop.Action.OPEN)) {
-			        try {
-			            desktop.open(t.getOutputDirectory());
-			        } catch (Exception e) { 
-			        	JOptionPane.showMessageDialog(null, "Error opening the output folder", "Error", JOptionPane.WARNING_MESSAGE); 
-			        }
-			    }
+				openFile(t.getOutputDirectory());
 			}
 		});
 		mnOutput.add(mntmGoToFolder);
-		
-		mntmOpenFile = new JMenuItem("Open Generated File...");
-		mntmOpenFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
-		mntmOpenFile.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-			    if (desktop != null && desktop.isSupported(Desktop.Action.OPEN)) {
-			        try {
-			            desktop.open(t.getGeneratedExamScript());
-			        } catch (Exception e) { 
-			        	JOptionPane.showMessageDialog(null, "Error opening the generated file", "Error", JOptionPane.WARNING_MESSAGE); 
-			        }
-			    }			
-			}
-		});
-		mnOutput.add(mntmOpenFile);
 		
 		JMenu mnHelp = new JMenu("Help");
 		mnHelp.setMnemonic('h');
@@ -204,82 +185,40 @@ public class Application {
 		mntmHelpDocumentation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
 		mntmHelpDocumentation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-			/*	String[] sourceFiles = {"help.html"};
-				File helpFile = null;
-				Desktop desktop = Desktop.getDesktop();
-				for (String filename: sourceFiles) {
-				
-					if (Desktop.isDesktopSupported())   
-					{   
-					    InputStream resource = Thread.currentThread().getContextClassLoader().getResourceAsStream("resources/"+filename);
-					    try
-					    {
-					    	File file = File.createTempFile(
-					    			filename.substring(0, filename.lastIndexOf('.')), 
-					    			filename.substring(filename.lastIndexOf('.')));
-					        file.deleteOnExit();
-					        if (filename.equals("help.html")) helpFile = file;
-					        
-					        PrintWriter tempFile = new PrintWriter(file);
-					        OutputStream out = new FileOutputStream(file);
-					        try
-					        {
-					            Scanner origSource = new Scanner(resource);
-					            while (origSource.hasNextLine()) {
-					            	tempFile.println(origSource.nextLine());
-					            }
-					            tempFile.flush();
-					        }
-					        finally
-					        {
-					        	tempFile.close();
-					            out.close();
-					        }
-					        
-					        resource.close();
-					    } catch (Exception e) {
-							JOptionPane.showMessageDialog(null, e.getMessage());
-						}
-					}
-				}
-				if (Desktop.isDesktopSupported())
-					try {
-						desktop.open(helpFile);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				*/
-				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-			    if (desktop != null && desktop.isDesktopSupported()) {
-			        try {
-			        	//desktop.open(new File("resources/help.html"));
-			            desktop.browse(new URI("http://aleang.github.io/ExamGenerator/"));
-			        } catch (Exception e) { 
-			        	JOptionPane.showMessageDialog(null, e.getMessage()); 
-			       	}
-			    }
-				
-			
+				browseURI("http://aleang.github.io/ExamGenerator/");			
 			}
 		});
 		mnHelp.add(mntmHelpDocumentation);
 		
-		JMenu mnAboutAuthor = new JMenu("About Exam Geneator");
-		mnHelp.add(mnAboutAuthor);
-		
-		JMenuItem mntmAboutAuthor = new JMenuItem("Visit Author's Page...");
+		JMenuItem mntmAboutAuthor = new JMenuItem("Visit Author's GitHub...");
+		mnHelp.add(mntmAboutAuthor);
 		mntmAboutAuthor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-			    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-			        try {
-			            desktop.browse(new URI("https://github.com/aleang"));
-			        } catch (Exception e) { e.printStackTrace(); }
-			    }
+				browseURI("https://github.com/aleang");
 			}
 		});
-		mnAboutAuthor.add(mntmAboutAuthor);
 		makePopupMenu();
+	}
+
+	protected void browseURI(String uri) {
+		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+	    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+	        try {
+	        	desktop.browse(new URI(uri));
+	        } catch (Exception e) { 
+	        	JOptionPane.showMessageDialog(null, e.getMessage()); 
+	       	}
+	    }
+	}
+	protected void openFile(File file) {
+		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+	    if (desktop != null && desktop.isSupported(Desktop.Action.OPEN)) {
+	        try {
+	            desktop.open(file);
+	        } catch (Exception e) { 
+	        	JOptionPane.showMessageDialog(null, "Error opening the file", "Error", JOptionPane.WARNING_MESSAGE); 
+	        }
+	    }	
 	}
 
 	private void makePopupMenu() {
@@ -388,40 +327,46 @@ public class Application {
 		panel.add(label_2);
 		
 		JLabel label_3 = new JLabel("Question Files");
-		label_3.setToolTipText("");
+		
 		label_3.setHorizontalAlignment(SwingConstants.RIGHT);
 		label_3.setBounds(6, 125, 120, 15);
 		panel.add(label_3);
 		
-		JLabel label_4 = new JLabel("(drag files here)");
-		label_4.setHorizontalAlignment(SwingConstants.RIGHT);
-		label_4.setFont(new Font("SansSerif", Font.ITALIC, 11));
-		label_4.setBounds(33, 145, 93, 15);
-		panel.add(label_4);
+		JLabel lbldragFilesHere = new JLabel("(drag files here)");
+		lbldragFilesHere.setHorizontalAlignment(SwingConstants.RIGHT);
+		lbldragFilesHere.setFont(new Font("SansSerif", Font.ITALIC, 11));
+		lbldragFilesHere.setBounds(33, 145, 93, 15);
+		panel.add(lbldragFilesHere);
 		
 		JLabel label_5 = new JLabel("Output Folder");
-		label_5.setToolTipText("click the text box to select the output folder");
+		
 		label_5.setHorizontalAlignment(SwingConstants.RIGHT);
-		label_5.setBounds(6, 201, 120, 30);
+		label_5.setBounds(6, 200, 120, 30);
 		panel.add(label_5);
 		
 		txfExamName = new JTextField();
+		txfExamName.addKeyListener(new KeyAdapter() {
+			
+			public void keyReleased(KeyEvent e) {
+				t.setExamName(txfExamName.getText());
+				checkGenerateReadiness();
+			}
+		});
 		txfExamName.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent arg0) {
+			
+			public void focusGained(FocusEvent e) {
 				txfExamName.setSelectionStart(0);
 				txfExamName.setSelectionEnd(Integer.MAX_VALUE);
 			}
-			@Override
-			public void focusLost(FocusEvent arg0) {
-				t.setExamName(txfExamName.getText());
-				updateSampleFileName();
+			
+			public void focusLost(FocusEvent e) {
+				checkGenerateReadiness();
 			}
 		});
 		txfExamName.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				t.setExamName(txfExamName.getText());
-				updateSampleFileName();
+				checkGenerateReadiness();
 			}
 		});
 		txfExamName.setToolTipText("Name your exam script, it will also be the file name");
@@ -439,7 +384,8 @@ public class Application {
 		jslVersionNumber.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				lblVersionNumber.setText(jslVersionNumber.getValue() + "");
-				updateSampleFileName();
+				t.setVersionNumber(jslVersionNumber.getValue());
+				checkGenerateReadiness();
 			}
 		});
 		jslVersionNumber.setValue(1);
@@ -461,21 +407,26 @@ public class Application {
 		
 		jlQuestionFiles = new JList();
 		jlQuestionFiles.addMouseListener(new MouseAdapter() {
-			@Override
 			public void mouseReleased(MouseEvent e) {
 				if (e.isPopupTrigger()) {
 					popup.show(scrollPane, e.getX(), e.getY());
 				} else if (e.getClickCount() == 2){
 					t.examFileListChange("set output");
+					checkGenerateReadiness();
 				}
 			}
 		});
 		scrollPane.setViewportView(jlQuestionFiles);
 		
 		txfOutputFolder = new JTextField();
+		txfOutputFolder.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				openFolderChooser();
+			}
+		});
 		txfOutputFolder.setToolTipText("Set the output folder by double clicking on one of the source file. Click here to choose a folder.");
 		txfOutputFolder.setEditable(false);
-		txfOutputFolder.setBounds(151, 201, 170, 30);
+		txfOutputFolder.setBounds(151, 200, 170, 30);
 		panel.add(txfOutputFolder);
 		
 		btnMoveUp = new JButton("\u25B2");
@@ -493,29 +444,30 @@ public class Application {
 		panel.add(btnMoveDown);
 		
 		btnRemoveFile = new JButton("\u00D7");
-		btnRemoveFile.setToolTipText("Remove the selected file. Right-click to remove all");
+		btnRemoveFile.setToolTipText("Remove the selected file");
 		btnRemoveFile.setFont(new Font("Arial", Font.PLAIN, 20));
 		btnRemoveFile.setBackground(new Color(220, 20, 60));
 		btnRemoveFile.setBounds(331, 171, 45, 25);
 		panel.add(btnRemoveFile);
 		
-		JButton btnOutputFolder = new JButton("...");
+		btnOutputFolder = new JButton("...");
 		btnOutputFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				openFolderChooser();
 				
 			}
 		});
 		btnOutputFolder.setToolTipText("Move selected file down");
-		btnOutputFolder.setBounds(331, 201, 45, 30);
+		btnOutputFolder.setBounds(331, 200, 45, 30);
 		panel.add(btnOutputFolder);
 		
-		bttnRandomVersionNumber = new JToggleButton("Random");
-		bttnRandomVersionNumber.setToolTipText("Set this to get a random version number at 'Generate'");
-		bttnRandomVersionNumber.setBounds(333, 42, 80, 30);
+		bttnRandomVersionNumber = new JToggleButton("?");
+		bttnRandomVersionNumber.setToolTipText("Randomise version number");
+		bttnRandomVersionNumber.setBounds(333, 42, 45, 30);
 		panel.add(bttnRandomVersionNumber);
 		
 		JLabel label_6 = new JLabel("Output File Name");
-		label_6.setToolTipText("click the text box to select the output folder");
+		label_6.setToolTipText("");
 		label_6.setHorizontalAlignment(SwingConstants.RIGHT);
 		label_6.setBounds(6, 240, 120, 30);
 		panel.add(label_6);
@@ -527,14 +479,50 @@ public class Application {
 		
 		JLabel lblProgress = new JLabel("Progress");
 		lblProgress.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblProgress.setBounds(6, 280, 120, 30);
+		lblProgress.setBounds(6, 330, 120, 30);
 		panel.add(lblProgress);
 		
 		jpbProgress = new JProgressBar();
-		jpbProgress.setBounds(151, 280, 170, 30);
+		jpbProgress.setBounds(151, 330, 170, 30);
 		panel.add(jpbProgress);
+		
+		JSeparator separator = new JSeparator();
+		separator.setBounds(6, 282, 428, 2);
+		panel.add(separator);
+		
+		JLabel lblReady = new JLabel("Ready");
+		lblReady.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblReady.setBounds(6, 290, 120, 30);
+		panel.add(lblReady);
+		
+		btnGenerate = new JButton("Generate");
+		btnGenerate.setMnemonic(KeyEvent.VK_G);
+		btnGenerate.setToolTipText("Generate when all the fields are valid and ready");
+		btnGenerate.setEnabled(false);
+		btnGenerate.addActionListener(new ActionListener() {			
+			public void actionPerformed(ActionEvent a) {
+				try {
+					if (bttnRandomVersionNumber.isSelected()) {
+						findRandomVersionNumber();
+					}
+		            t.generateTest();
+		            jpbProgress.setValue(100);
+		            
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		            JOptionPane.showMessageDialog(null, "An error occured while generating the exam script.\n"
+		                    + "Error Message: " 
+		                    + e.getMessage() + '\n'
+		                    + "Program has aborted.",
+		                    "Encountered an error", JOptionPane.ERROR_MESSAGE);
+		            
+		        }
+			}
+		});
+		btnGenerate.setBounds(151, 290, 170, 28);
+		panel.add(btnGenerate);
 		frmApplication.setTitle("Exam Generator");
-		frmApplication.setBounds(100, 100, 448, 367);
+		frmApplication.setBounds(100, 100, 448, 451);
 		frmApplication.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		MouseAdapter selectFolderListener = new MouseAdapter() {
 			public void mousePressed(MouseEvent arg0) {
@@ -557,26 +545,45 @@ public class Application {
 		            txfOutputFolder.setToolTipText(folderChooser.getSelectedFile().getAbsolutePath());
 		            t.setOutputDirectory(folderChooser.getSelectedFile());
 		        }
+		        
+		        checkGenerateReadiness();
 			}
 		};
 		
-		DropFileListener myDragDropListener = new DropFileListener(t);
+		DropFileListener myDragDropListener = new DropFileListener(t, this);
 		new DropTarget(frmApplication, myDragDropListener);
 	}
+	protected void openFolderChooser() {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setMultiSelectionEnabled(false);
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			t.setOutputDirectory(chooser.getSelectedFile());
+			txfOutputFolder.setText(chooser.getSelectedFile().getAbsolutePath());
+		}
+		checkGenerateReadiness();
+	}
+
 	protected void findRandomVersionNumber() {
 		jslVersionNumber.setValue((int)(Math.random()*100 + 1));
-		updateSampleFileName();
+		checkGenerateReadiness();
 		
 	}
 
-	protected void updateSampleFileName() {
+	public void checkGenerateReadiness() {
 		if (lblFileName == null) return;
+		
 		lblFileName.setText(String.format(
 			"%s-v%d-[Exam Script].html",
-				t.getExamName() == null || t.getExamName().length() == 0 ? "ExamName" : t.getExamName(),
+				t.getExamName(),
 				t.getVersionNumber()
 				)
 			);
+		try {
+			btnGenerate.setEnabled(t.isInputFieldValid());
+		} catch (Exception e) {	
+			btnGenerate.setEnabled(false);
+		} 
 		jpbProgress.setValue(0);
 	}
 }

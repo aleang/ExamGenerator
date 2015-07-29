@@ -16,9 +16,11 @@ import javax.swing.JOptionPane;
 
 public class DropFileListener implements DropTargetListener {
 	TestGenerator t;
+	Application a;
 	
-    public DropFileListener(TestGenerator t) {
+    public DropFileListener(TestGenerator t, Application a) {
     	this.t = t;
+    	this.a = a;
 	}
     
     public void drop(DropTargetDropEvent event) {
@@ -66,7 +68,7 @@ public class DropFileListener implements DropTargetListener {
                     }
                     
                     t.addExamFiles(filesArray);
-			        
+                    a.checkGenerateReadiness();
                     break flavoursLoop;
                 }
 

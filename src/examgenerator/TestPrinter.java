@@ -21,7 +21,7 @@ public class TestPrinter {
 			outputFileName = String.format("%s/%s-v%d-%s", 
 							 outputFolder.getAbsolutePath(), 
 							 examName, versionNumber,
-							 documentType == EXAM_SCRIPT ? "[Exam Script].html" : "[Answers].txt"
+							 (documentType == EXAM_SCRIPT ? "[Exam Script]" : "[Answers]") + ".html"
 				 		);
 		}
 		try {
