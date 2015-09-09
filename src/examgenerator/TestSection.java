@@ -67,7 +67,8 @@ public class TestSection {
 
     void writeToFile() {
         if (sectionHeaderOrTitle.contains("<h1>")) printer.out(sectionHeaderOrTitle);  
-        else printer.out("h1", sectionHeaderOrTitle);
+        else if (!sectionHeaderOrTitle.isEmpty()) printer.out("h1", sectionHeaderOrTitle);
+        
         out.print(sectionHeaderOrTitle);
         
         for (TestQuestion tq : questions) {

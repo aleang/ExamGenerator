@@ -39,7 +39,8 @@ public class TestGenerator extends JFrame {
 	private JList<String> lstExamFiles;
 	private JTextField txfOutputFolder;
 	final private char EXAM_SCRIPT = 'E', ANSWERS = 'A', STYLES = 'S';
-	private JToggleButton bttnRandomVersionNumber; 
+	private JToggleButton bttnRandomVersionNumber;
+	private ProgressWindow progWindow;
 	
 	public TestGenerator() {
         examName = "ExamName";
@@ -59,12 +60,9 @@ public class TestGenerator extends JFrame {
         readQuestionFiles();
 
         // Print out sections to HTML document
-        staticQuestionNumber = 1;
-        for (TestSection sec: sections){
-            sec.writeToFile();
-        }
-        printer.flush();
+        printExamFile();
         
+        // Print out answer file
         printAnswersAndStyles();
     }
     
@@ -81,6 +79,7 @@ public class TestGenerator extends JFrame {
 
 	private void readQuestionFiles() throws Exception {
         sections = new TestSection[examFiles.size()];
+        progWindow.chckbxReadingQuestionFiles.setSelected(true);
         answerSheet.clear();
         try {
             for (int i = 0; i < examFiles.size(); i++) {
@@ -89,21 +88,28 @@ public class TestGenerator extends JFrame {
         } catch(Exception e) {
             throw e;
         }
-        
+        progWindow.chckbxRandomisingQuestionOrder.setSelected(true);
     }
-    
+    private void printExamFile() {
+    	staticQuestionNumber = 1;
+        for (TestSection sec: sections){
+            sec.writeToFile();
+        }
+        printer.flush();
+        progWindow.chckbxWritingExamFile.setSelected(true);
+    }
     private void printAnswersAndStyles() throws Exception {
     	
         try {
         	// Try print out answer sheet
         	TestPrinter printer = new TestPrinter(outputFolder, examName, versionNumber, ANSWERS);
-        	printer.outln("<html><body><pre>");
+        	printer.outln("<html><body><h3>Version " + versionNumber + "</h3><pre>");
             for (int i = 1; ! answerSheet.isEmpty(); i++){
                 char optCode = answerSheet.remove(0);
                 int spaces = (optCode - 'A')*4 + 1;
                 String line = String.format("%3d: %"+spaces+"s", i, optCode+"");
                 printer.outln(line);
-                if (i % 5 == 0) printer.outln();
+                if (i % 10 == 0) printer.outln();
             }
             printer.outln("</pre></body></html>");
             printer.flush();
@@ -125,6 +131,7 @@ public class TestGenerator extends JFrame {
         } catch (Exception e) {
             throw new Exception("Error printint out CSS file");
         }
+        progWindow.chckbxWritingAnswerFile.setSelected(true);
     }
         
     // Setters *************************************************
@@ -140,10 +147,11 @@ public class TestGenerator extends JFrame {
 	public void setOutputDirectory(File dir) { 
 		outputFolder = dir;
 	}
-	public void setComponents(JList l, JTextField t, JToggleButton b) {
+	public void setComponents(JList l, JTextField t, JToggleButton b, ProgressWindow w) {
 		this.lstExamFiles = l;
 		this.txfOutputFolder = t;
 		this.bttnRandomVersionNumber = b;
+		this.progWindow = w;
 	}
     
     // Getters ***************************************************

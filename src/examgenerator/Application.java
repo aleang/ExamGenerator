@@ -70,7 +70,6 @@ public class Application {
 	private JTextField txfExamName;
 	private JLabel lblVersionNumber;
 	private JTextField txfOutputFolder;
-	private JProgressBar jpbProgress;
 	private JSlider jslVersionNumber;
 	private JToggleButton bttnRandomiseOrder;
 	private JToggleButton bttnRandomVersionNumber;
@@ -82,6 +81,8 @@ public class Application {
 	private JButton btnGenerate;
 	private JButton btnOutputFolder;
 	private JMenuItem mntmOpenAnswerSheet;
+	private ProgressWindow progWindow;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -111,9 +112,10 @@ public class Application {
 		 * initialise components in the application
 		 */
 		t = new TestGenerator();
+		progWindow = new ProgressWindow(t);
 		initialize();
 		frmApplication.setTitle("Exam Generator \u00a9 2015 Pheng Taing");
-		t.setComponents(jlQuestionFiles, txfOutputFolder, bttnRandomVersionNumber);
+		t.setComponents(jlQuestionFiles, txfOutputFolder, bttnRandomVersionNumber, progWindow);
 		
 		JMenuBar menuBar = new JMenuBar();
 		frmApplication.setJMenuBar(menuBar);
@@ -477,20 +479,11 @@ public class Application {
 		lblFileName.setBounds(151, 240, 283, 30);
 		panel.add(lblFileName);
 		
-		JLabel lblProgress = new JLabel("Progress");
-		lblProgress.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblProgress.setBounds(6, 330, 120, 30);
-		panel.add(lblProgress);
-		
-		jpbProgress = new JProgressBar();
-		jpbProgress.setBounds(151, 330, 170, 30);
-		panel.add(jpbProgress);
-		
 		JSeparator separator = new JSeparator();
 		separator.setBounds(6, 282, 428, 2);
 		panel.add(separator);
 		
-		JLabel lblReady = new JLabel("Ready");
+		JLabel lblReady = new JLabel("Ready?");
 		lblReady.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblReady.setBounds(6, 290, 120, 30);
 		panel.add(lblReady);
@@ -505,9 +498,9 @@ public class Application {
 					if (bttnRandomVersionNumber.isSelected()) {
 						findRandomVersionNumber();
 					}
+					progWindow.openForm();
 		            t.generateTest();
-		            jpbProgress.setValue(100);
-		            
+		            progWindow.formDisplaySuccess();
 		        } catch (Exception e) {
 		            e.printStackTrace();
 		            JOptionPane.showMessageDialog(null, "An error occured while generating the exam script.\n"
@@ -522,7 +515,7 @@ public class Application {
 		btnGenerate.setBounds(151, 290, 170, 28);
 		panel.add(btnGenerate);
 		frmApplication.setTitle("Exam Generator");
-		frmApplication.setBounds(100, 100, 448, 451);
+		frmApplication.setBounds(100, 100, 448, 399);
 		frmApplication.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		MouseAdapter selectFolderListener = new MouseAdapter() {
 			public void mousePressed(MouseEvent arg0) {
@@ -567,7 +560,6 @@ public class Application {
 	protected void findRandomVersionNumber() {
 		jslVersionNumber.setValue((int)(Math.random()*100 + 1));
 		checkGenerateReadiness();
-		
 	}
 
 	public void checkGenerateReadiness() {
@@ -583,7 +575,6 @@ public class Application {
 			btnGenerate.setEnabled(t.isInputFieldValid());
 		} catch (Exception e) {	
 			btnGenerate.setEnabled(false);
-		} 
-		jpbProgress.setValue(0);
+		}
 	}
 }
